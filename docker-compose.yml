@@ -1,0 +1,47 @@
+###############################################################################
+#                          Generated on phpdocker.io                          #
+###############################################################################
+version: "3.1"
+services:
+    redis:
+        image: "redis:alpine"
+        container_name: cms-redis
+        networks:
+            - cms
+            
+    postgres:
+        image: "postgres:11.1-alpine"
+        container_name: cms-postgres
+        working_dir: /application
+        networks:
+            - cms
+        volumes:
+            - cms-pgdata:/var/lib/postgresql/data
+        environment:
+            - POSTGRES_USER=postgresql
+            - POSTGRES_PASSWORD=postgresql
+            - POSTGRES_DB=postgresql
+        ports:
+            - "9432:5432"
+
+    app:
+        build: .
+        container_name: cms-app
+        working_dir: /application
+        networks:
+            - cms
+        volumes:
+            - ".:/application"
+            - "./docker/nginx/nginx.conf:/etc/nginx/conf.d/default.conf"
+            - "./docker/php-fpm/php-ini-overrides.ini:/etc/php/8.2/fpm/conf.d/99-overrides.ini"
+            - "./docker/php-fpm/supervisor/worker.conf:/etc/supervisor/conf.d/worker.conf"
+            - "./storage/logs/supervisor:/home/supervisor"
+        ports:
+            - "8000:8000"
+networks:
+    cms:
+        name: cms
+        driver: bridge
+
+volumes:
+    cms-pgdata: {}

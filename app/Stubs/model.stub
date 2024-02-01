@@ -1,0 +1,30 @@
+<?php
+
+namespace __model_namespace__;
+
+use App\Traits\LogsActivity;
+use Illuminate\Database\Eloquent\Model;
+use Spatie\Activitylog\LogOptions;
+
+class __model_class_name__ extends Model
+{
+    use LogsActivity;
+
+    protected $table = '__db_table_name__';
+
+    public function getActivitylogOptions(): LogOptions
+    {
+        return LogOptions::defaults()
+            ->logOnlyDirty();
+    }
+
+    public function getDescriptionForEvent(string $eventName): string
+    {
+        $description = [
+            'created' => 'Buat data __name__ dengan nama :subject.name',
+            'updated' => 'Ubah data __name__ dengan nama :subject.name',
+            'deleted' => 'Hapus data __name__ dengan nama :subject.name',
+        ];
+        return $description[$eventName];
+    }
+}
